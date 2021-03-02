@@ -28,9 +28,24 @@ def message(payload):
     # Get the text from the event that came through
     text = event.get("text")
 
-    # Check and see if the activation phrase was in the text of the message.
+    # Get all mentions in the text by searching for @ followed by a word
+    mentions = re.findall("@\w+", text)
+
+    is_bot = False
+
+    for mention in mentions:
+        try:
+            # Get more information about each mentioned user
+            user_info = slack_web_client.users_info(user=mention[1:])
+            user_data = user_info.data.get("user")
+            # Check if the mentioned user is DharaBot
+            is_bot = user_info.status_code == 200 and user_data.get("is_bot") and user_data.get("name") == "dharabot"
+        except Exception as e:
+            print(e)
+
+    # Check and see if DharaBot was mentioned and the activation phrase was in the text of the message.
     # If so, we respond.
-    if re.search("hey dharabot, save this", text.lower()):
+    if is_bot and re.search("save this thread", text.lower()):
         # Since the activation phrase was met, get the channel ID that the event
         # was executed on
         channel_id = event.get("channel")
@@ -63,10 +78,11 @@ def message(payload):
                         "type": "section", 
                         "text": {
                             "type": "mrkdwn", 
-                            "text": "Sorry, the bot works only in threads"
+                            "text": "Sorry, the bot works only in threads :disappointed:"
                         }
                     }
-                ]
+                ],
+                "thread_ts": event.get("ts") # Reply in thread of request
             }
         # Send the message payload
         slack_web_client.chat_postMessage(**message)
