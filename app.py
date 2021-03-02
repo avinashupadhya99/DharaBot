@@ -30,22 +30,30 @@ def message(payload):
 
     # Check and see if the activation phrase was in the text of the message.
     # If so, we respond.
-    if re.search("hey bot, what's up", text.lower()):
+    if re.search("hey dharabot, save this", text.lower()):
         # Since the activation phrase was met, get the channel ID that the event
         # was executed on
         channel_id = event.get("channel")
 
-        # Construct the message payload
-        message = {
-            "channel": channel_id,
-            "blocks": [
-                {"type": "section", "text": {"type": "mrkdwn", "text": "Hello there! Thank you for using DharaBot!"}}
-            ]
-        }
+        if "thread_ts" in event.keys():
+            # Construct the message payload
+            message = {
+                "channel": channel_id,
+                "blocks": [
+                    {"type": "section", "text": {"type": "mrkdwn", "text": "Hello there! Thank you for using DharaBot!"}}
+                ],
+                "thread_ts": event.get("thread_ts")
+            }
+        else:
+            # Construct the message payload
+            message = {
+                "channel": channel_id,
+                "blocks": [
+                    {"type": "section", "text": {"type": "mrkdwn", "text": "Sorry, the bot works only in threads"}}
+                ]
+            }
         # Send the message payload
         slack_web_client.chat_postMessage(**message)
-    else:
-        print("Invalid command")
 
 if __name__ == "__main__":
     # Create the logging object
