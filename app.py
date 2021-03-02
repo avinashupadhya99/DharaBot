@@ -36,20 +36,36 @@ def message(payload):
         channel_id = event.get("channel")
 
         if "thread_ts" in event.keys():
+            thread_ts = event.get("thread_ts")
+            replies = slack_web_client.conversations_replies(channel=channel_id, ts=thread_ts)
+            # print(replies.data)
+
             # Construct the message payload
             message = {
                 "channel": channel_id,
                 "blocks": [
-                    {"type": "section", "text": {"type": "mrkdwn", "text": "Hello there! Thank you for using DharaBot!"}}
+                    {
+                        "type": "section", 
+                        "text": {
+                            "type": "mrkdwn", 
+                            "text": "Hello there! Thank you for using DharaBot!"
+                        }
+                    }
                 ],
-                "thread_ts": event.get("thread_ts")
+                "thread_ts": thread_ts
             }
         else:
             # Construct the message payload
             message = {
                 "channel": channel_id,
                 "blocks": [
-                    {"type": "section", "text": {"type": "mrkdwn", "text": "Sorry, the bot works only in threads"}}
+                    {
+                        "type": "section", 
+                        "text": {
+                            "type": "mrkdwn", 
+                            "text": "Sorry, the bot works only in threads"
+                        }
+                    }
                 ]
             }
         # Send the message payload
@@ -60,7 +76,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     # Set the log level to DEBUG. This will increase verbosity of logging messages
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     # Add the StreamHandler as a logging handler
     logger.addHandler(logging.StreamHandler())
