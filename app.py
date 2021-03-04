@@ -4,6 +4,7 @@ import logging
 from flask import Flask
 from slack_sdk.web import WebClient
 from slackeventsapi import SlackEventAdapter
+from generate_html import generate_html
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
@@ -39,7 +40,7 @@ def message(payload):
             user_info = slack_web_client.users_info(user=mention[1:])
             user_data = user_info.data.get("user")
             # Check if the mentioned user is DharaBot
-            is_bot = user_info.status_code == 200 and user_data.get("is_bot") and user_data.get("name") == "dharabot"
+            is_bot = user_info.status_code == 200 and user_data.get("is_bot") and user_data.get("name") == "coinbot"
         except Exception as e:
             print(e)
 
@@ -55,20 +56,41 @@ def message(payload):
             replies = slack_web_client.conversations_replies(channel=channel_id, ts=thread_ts)
             # print(replies.data)
 
-            # Construct the message payload
-            message = {
-                "channel": channel_id,
-                "blocks": [
-                    {
-                        "type": "section", 
-                        "text": {
-                            "type": "mrkdwn", 
-                            "text": "Hello there! Thank you for using DharaBot!"
+            if replies.status_code == 200 and replies.data['ok']:
+                for message in replies.data['messages']:
+                    print(message["text"])
+
+                print(generate_html(replies.data['messages']))
+
+                # Construct the message payload
+                message = {
+                    "channel": channel_id,
+                    "blocks": [
+                        {
+                            "type": "section", 
+                            "text": {
+                                "type": "mrkdwn", 
+                                "text": "Hello there! Thank you for using DharaBot!"
+                            }
                         }
-                    }
-                ],
-                "thread_ts": thread_ts
-            }
+                    ],
+                    "thread_ts": thread_ts
+                }
+            else:
+                # Construct the message payload
+                message = {
+                    "channel": channel_id,
+                    "blocks": [
+                        {
+                            "type": "section", 
+                            "text": {
+                                "type": "mrkdwn", 
+                                "text": "Sorry, something went wrong!"
+                            }
+                        }
+                    ],
+                    "thread_ts": thread_ts
+                }
         else:
             # Construct the message payload
             message = {
