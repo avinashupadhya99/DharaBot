@@ -57,11 +57,16 @@ def message(payload):
             # print(replies.data)
 
             if replies.status_code == 200 and replies.data['ok']:
-                for message in replies.data['messages']:
-                    print(message["text"])
-
-                print(generate_html(replies.data['messages']))
-
+                users_info = {}
+                for msg in replies.data['messages']:
+                    result = slack_web_client.users_info(
+                        user=msg['user']
+                    )
+                    if(result['ok']):
+                        users_info[msg['user']] = result['user']
+                
+                print(generate_html(replies.data['messages'], users_info))
+                
                 # Construct the message payload
                 message = {
                     "channel": channel_id,
