@@ -69,10 +69,10 @@ def message(payload):
 
                     userids = set()
 
+                    # Find all occurrences of mentions
                     for mention in re.finditer(r"<@\w*>", msg['text']):
                         # Extract the user id from the mention ie with the starting '<@' and ending '>'
                         userid = msg['text'][mention.start()+2:mention.end()-1]
-                        print('123 - '+userid)
                         # Get user details if not already fetched
                         if userid not in users_info.keys():
                             result = slack_web_client.users_info(
@@ -80,11 +80,11 @@ def message(payload):
                             )
                             if(result['ok']):
                                 users_info[userid] = result['user']
+                        # Store the user ids in a set for replacing
                         userids.add(userid)
 
                     for userid in userids:
                         if userid in users_info.keys():
-                            print(userid)
                             # Replace occurences of mentions with user names and appropriate styling
                             msg['text'] = msg['text'].replace('<@'+userid+'>', '<span class="message__mention">@'+users_info[userid]['real_name']+'</span>')
                 
