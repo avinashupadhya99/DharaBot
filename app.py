@@ -103,7 +103,6 @@ def message(payload):
                     for emoticoncode in re.finditer(r":\S*:", msg['text']):
                         # Extract the emoticon name from the emoticoncode ie with the starting and ending with ':'
                         emoticon = msg['text'][emoticoncode.start()+1:emoticoncode.end()-1]
-                        print(emoticon)
                         # Store the emoticons in a set for replacing
                         emoticons.add(emoticon)
 
@@ -113,6 +112,12 @@ def message(payload):
                         elif custom_emojis['ok'] and emoticon in custom_emojis['emoji']:
                             msg['text'] = msg['text'].replace(':'+emoticon+':', '<img class="message__custom-emoji" src="'+custom_emojis['emoji'][emoticon]+'" />')
                     
+                    if 'reactions' in msg.keys():
+                        for reaction in msg['reactions']:
+                            if reaction['name'] in slack_emoticons_to_html_unicode.keys():
+                                reaction['name'] = slack_emoticons_to_html_unicode[reaction['name']]
+                            elif custom_emojis['ok'] and reaction['name'] in custom_emojis['emoji']:
+                                reaction['name'] = '<img class="message__custom-reaction" src="'+custom_emojis['emoji'][reaction['name']]+'" />'
                 
                 html_export = generate_html(replies.data['messages'], users_info)
                 
