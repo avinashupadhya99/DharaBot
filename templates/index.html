@@ -7,6 +7,7 @@
     <title>Slack</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <style>
         body {
@@ -59,6 +60,15 @@
             height: 1.5rem;
             width: 1.5rem;
         }
+        .message__file {
+            background-color: #F8F8F8;
+            border: #5C5B5C .1rem solid;
+            display: flex;
+            font-size: 1.25rem;
+            justify-content: space-between;
+            margin-top: .75rem;
+            padding: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -76,6 +86,13 @@
                 </div>
                 <div class="message__contents">
                     {{message.text}}
+                    {% if 'files' in message.keys() %}
+                        {% for file in message.files %}
+                            <div class="message__file">
+                                <a target="blank" href="{{file.url_private}}">{{file.title}}</a> <a target="blank" href="{{file.url_private_download}}"><i class="fa fa-download"></i></a>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
