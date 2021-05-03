@@ -88,22 +88,16 @@ def message(payload):
                             # Replace occurences of mentions with user names and appropriate styling
                             msg['text'] = msg['text'].replace('<@'+userid+'>', '<span class="message__mention">@'+users_info[userid]['real_name']+'</span>')
                 
-                print(generate_html(replies.data['messages'], users_info))
+                html_export = generate_html(replies.data['messages'], users_info)
                 
-                # Construct the message payload
-                message = {
-                    "channel": channel_id,
-                    "blocks": [
-                        {
-                            "type": "section", 
-                            "text": {
-                                "type": "mrkdwn", 
-                                "text": "Hello there! Thank you for using DharaBot!"
-                            }
-                        }
-                    ],
-                    "thread_ts": thread_ts
-                }
+                return slack_web_client.files_upload(
+                    channels = channel_id,
+                    initial_comment = 'Hello there! Thank you for using DharaBot!',
+                    file = html_export,
+                    title = 'DharaBot thread export',
+                    filetype = 'html',
+                    thread_ts = thread_ts
+                )
             else:
                 # Construct the message payload
                 message = {

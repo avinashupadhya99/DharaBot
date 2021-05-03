@@ -21,4 +21,4 @@ def generate_html(data, users_info):
             datetime = datetime
         ))
 
-        return fileuuid
+        return './html/'+str(fileuuid)+'.html'
