@@ -59,11 +59,34 @@ def message(payload):
             if replies.status_code == 200 and replies.data['ok']:
                 users_info = {}
                 for msg in replies.data['messages']:
-                    result = slack_web_client.users_info(
-                        user=msg['user']
-                    )
-                    if(result['ok']):
-                        users_info[msg['user']] = result['user']
+                    # Get user details if not already fetched
+                    if msg['user'] not in users_info.keys():
+                        result = slack_web_client.users_info(
+                            user=msg['user']
+                        )
+                        if(result['ok']):
+                            users_info[msg['user']] = result['user']
+
+                    userids = set()
+
+                    for mention in re.finditer(r"<@\w*>", msg['text']):
+                        # Extract the user id from the mention ie with the starting '<@' and ending '>'
+                        userid = msg['text'][mention.start()+2:mention.end()-1]
+                        print('123 - '+userid)
+                        # Get user details if not already fetched
+                        if userid not in users_info.keys():
+                            result = slack_web_client.users_info(
+                                user=userid
+                            )
+                            if(result['ok']):
+                                users_info[userid] = result['user']
+                        userids.add(userid)
+
+                    for userid in userids:
+                        if userid in users_info.keys():
+                            print(userid)
+                            # Replace occurences of mentions with user names and appropriate styling
+                            msg['text'] = msg['text'].replace('<@'+userid+'>', '<span class="message__mention">@'+users_info[userid]['real_name']+'</span>')
                 
                 print(generate_html(replies.data['messages'], users_info))
                 
