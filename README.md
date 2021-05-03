@@ -8,7 +8,7 @@ Steps to run the bot on your workspace/locally (Note that you will need a public
 
 1. Create a new Workspace or log onto your existing Workspace in a browser and go to the [Slack API Control Panel](https://api.slack.com/apps). Click on **Create New App**.
 2. Name it as *DharaBot* and click on Create App.
-3. Go to **OAuth & Permission** > Under **Scopes**, **Bot Token Scopes** > **Add an OAuth Scope** > *chat:write*, *files:write* and *users:read*
+3. Go to **OAuth & Permission** > Under **Scopes**, **Bot Token Scopes** > **Add an OAuth Scope** > *chat:write*, *emoji:read*, *files:write* and *users:read*
 4. Go to **Event Subscriptions** and toggle ON the **Enable Events** and add the *Request URL* as `http://<YOUR_PUBLIC_IP>:3000/slack/events` and click on **Save Changes**.
 5. Install the bot into Workspace by clicking on **Install to Workspace** in the same page > **Allow**. Copy the *Bot User OAuth Access Token* for further use as SLACK_TOKEN.
 6. Open your Workspace and add the app to any channel.
