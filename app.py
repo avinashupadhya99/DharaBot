@@ -5,6 +5,10 @@ from flask import Flask
 from slack_sdk.web import WebClient
 from slackeventsapi import SlackEventAdapter
 from generate_html import generate_html
+import json
+
+with open('slack_emoticons_to_html_unicode.json') as json_file:
+    slack_emoticons_to_html_unicode = json.load(json_file)
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
@@ -58,6 +62,11 @@ def message(payload):
 
             if replies.status_code == 200 and replies.data['ok']:
                 users_info = {}
+
+                custom_emojis = slack_web_client.api_call(
+                    api_method='emoji.list'
+                )
+
                 for msg in replies.data['messages']:
                     # Get user details if not already fetched
                     if msg['user'] not in users_info.keys():
@@ -87,6 +96,23 @@ def message(payload):
                         if userid in users_info.keys():
                             # Replace occurences of mentions with user names and appropriate styling
                             msg['text'] = msg['text'].replace('<@'+userid+'>', '<span class="message__mention">@'+users_info[userid]['real_name']+'</span>')
+
+                    emoticons = set()
+
+                    # Find all occurrences of emoticons
+                    for emoticoncode in re.finditer(r":\S*:", msg['text']):
+                        # Extract the emoticon name from the emoticoncode ie with the starting and ending with ':'
+                        emoticon = msg['text'][emoticoncode.start()+1:emoticoncode.end()-1]
+                        print(emoticon)
+                        # Store the emoticons in a set for replacing
+                        emoticons.add(emoticon)
+
+                    for emoticon in emoticons:
+                        if emoticon in slack_emoticons_to_html_unicode.keys():
+                            msg['text'] = msg['text'].replace(':'+emoticon+':', slack_emoticons_to_html_unicode[emoticon])
+                        elif custom_emojis['ok'] and emoticon in custom_emojis['emoji']:
+                            msg['text'] = msg['text'].replace(':'+emoticon+':', '<img class="message__custom-emoji" src="'+custom_emojis['emoji'][emoticon]+'" />')
+                    
                 
                 html_export = generate_html(replies.data['messages'], users_info)
                 

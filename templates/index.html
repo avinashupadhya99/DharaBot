@@ -24,7 +24,7 @@
             gap: 1rem;
             width: 100%;
         }
-        .message-container img {
+        .message-container--profile-picture {
             height: 3rem;
             width: 3rem;
         }
@@ -55,13 +55,17 @@
             font-weight: 500;
             padding: .15rem;
         }
+        .message__custom-emoji {
+            height: 1.5rem;
+            width: 1.5rem;
+        }
     </style>
 </head>
 <body>
     <main class="main-container">
       {% for message in messages %}
         <div class="message-container">
-            <img src="{{users_info[message.user].profile.image_24}}" />
+            <img class="message-container--profile-picture" src="{{users_info[message.user].profile.image_24}}" />
             <div class="message-container--right">
                 <div>
                     <span class="message__username">{{users_info[message.user].real_name}}</span>
